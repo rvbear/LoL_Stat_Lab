@@ -1,0 +1,38 @@
+/* Import Tailwind's base, components, and utilities styles */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Apply project-specific base styles */
+@layer base {
+  body {
+    @apply bg-hextech-black text-hextech-gold-100;
+    font-family: 'Noto Sans KR', sans-serif; /* As per project-context.md */
+  }
+
+  /* Define the custom font-family for titles if needed */
+    .font-lol {
+      font-family: 'Beaufort for LOL', sans-serif;
+    }
+  }
+  
+  @layer utilities {
+    /* Custom scrollbar hiding utility */
+    .scrollbar-hide {
+      /* For Firefox */
+      scrollbar-width: none;
+      /* For IE, Edge */
+      -ms-overflow-style: none;
+    }
+      .scrollbar-hide::-webkit-scrollbar {
+        /* For Chrome, Safari, and Opera */
+        display: none;
+      }
+      .line-clamp-3 {
+        overflow: hidden;
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 3;
+      }
+    }
+    
