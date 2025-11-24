@@ -7,27 +7,32 @@ import NotFoundPage from '../pages/NotFoundPage';
 
 import VersusPage from '../pages/VersusPage';
 
-const router = createBrowserRouter([
+const router = createBrowserRouter(
+  [
+    {
+      path: '/',
+      element: <App />,
+      errorElement: <NotFoundPage />,
+      children: [
+        {
+          index: true,
+          element: <ExplorerPage />,
+        },
+        {
+          path: 'versus',
+          element: <VersusPage />,
+        },
+        {
+          path: 'champions/:championId',
+          element: <DetailPage />,
+        },
+      ],
+    },
+  ],
   {
-    path: '/',
-    element: <App />,
-    errorElement: <NotFoundPage />,
-    children: [
-      {
-        index: true,
-        element: <ExplorerPage />,
-      },
-      {
-        path: 'versus',
-        element: <VersusPage />,
-      },
-      {
-        path: 'champions/:championId',
-        element: <DetailPage />,
-      },
-    ],
-  },
-]);
+    basename: '/LoL_Stat_Lab',
+  }
+);
 
 const AppRouter = () => {
   return <RouterProvider router={router} />;
