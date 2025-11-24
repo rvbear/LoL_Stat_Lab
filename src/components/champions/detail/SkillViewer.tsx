@@ -1,27 +1,47 @@
 // src/components/champions/detail/SkillViewer.tsx
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import type { ChampionDetail, ChampionSpell, ChampionPassive } from '../../../types/champion';
 import { getChampionImage } from '../../../utils/imageMapper';
 import { clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 
+type DisplaySkill = ChampionSpell | (ChampionPassive & { id: string });
+
 interface SkillViewerProps {
   champion: ChampionDetail;
 }
 
-type SelectableSkill = ChampionSpell | ChampionPassive;
-
 const SkillViewer: React.FC<SkillViewerProps> = ({ champion }) => {
-  const [selectedSkill, setSelectedSkill] = useState<SelectableSkill>(champion.passive);
+  const [selectedSkill, setSelectedSkill] = useState<DisplaySkill | null>(null);
 
-  const skills = useMemo(() => [champion.passive, ...champion.spells], [champion]);
+  const skills = useMemo<DisplaySkill[]>(() => {
+    if (!champion) return [];
+
+    // 패시브에 id 추가
+    const passiveWithId: DisplaySkill = {
+      ...champion.passive,
+      id: 'passive',
+    };
+
+    return [passiveWithId, ...champion.spells];
+  }, [champion]);
+
+  // skills가 준비되면 첫 번째 스킬(P)을 선택
+  useEffect(() => {
+    if (skills.length > 0 && !selectedSkill) {
+      setSelectedSkill(skills[0]);
+    }
+  }, [skills, selectedSkill]);
+
   const skillKeys = ['P', 'Q', 'W', 'E', 'R'];
 
-  const handleSkillSelect = (skill: SelectableSkill) => {
+  const handleSkillSelect = (skill: DisplaySkill) => {
     setSelectedSkill(skill);
   };
 
-  const isSpell = (skill: SelectableSkill): skill is ChampionSpell => 'cost' in skill;
+  const isSpell = (skill: DisplaySkill): skill is ChampionSpell => 'cost' in skill;
+
+  if (!selectedSkill) return null; // 초기 로딩 가드
 
   return (
     <div className="w-full">
@@ -62,7 +82,10 @@ const SkillViewer: React.FC<SkillViewerProps> = ({ champion }) => {
 
       {/* Skill Description Panel */}
       <div className="rounded-md bg-hextech-blue-900/50 p-4">
-        <p className="mb-2 text-xl font-bold text-hextech-gold-100">{selectedSkill.name}</p>
+        <p className="mb-2 text-xl font-bold text-hextech-gold-100">
+          {selectedSkill.name}
+        </p>
+
         {isSpell(selectedSkill) && (
           <div className="mb-4 flex flex-wrap items-center gap-x-6 gap-y-1 text-sm text-hextech-gold-300">
             {selectedSkill.cooldown.some((cd) => cd > 0) && (
@@ -72,6 +95,7 @@ const SkillViewer: React.FC<SkillViewerProps> = ({ champion }) => {
                 <span className="text-xs">초</span>
               </p>
             )}
+
             {selectedSkill.cost.some((c) => c > 0) && (
               <p>
                 <strong className="font-semibold text-hextech-gold-400">
@@ -82,6 +106,7 @@ const SkillViewer: React.FC<SkillViewerProps> = ({ champion }) => {
             )}
           </div>
         )}
+
         <div
           className="space-y-2 text-sm text-hextech-gold-100/90"
           dangerouslySetInnerHTML={{ __html: selectedSkill.description }}
