@@ -28,6 +28,10 @@ const DetailPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState('개요');
 
   useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [championId]);
+
+  useEffect(() => {
     if (championMap.size === 0 && !championsLoading) return;
 
     const foundChampion = championMap.get(championId || '');

@@ -10,12 +10,18 @@ interface HeroSectionProps {
   skinNum: number;
 }
 
+const stripHtml = (html: string) => {
+  const tmp = document.createElement('div');
+  tmp.innerHTML = html;
+  return tmp.textContent || tmp.innerText || '';
+};
+
 const HeroSection: React.FC<HeroSectionProps> = ({ champion, skinNum }) => {
   const splashUrl = getChampionImage.splash(champion.id, skinNum);
   const [isExpanded, setIsExpanded] = useState(false);
 
-  // A character count check is still a good heuristic to decide if the button should be shown.
-  const isLongLore = champion.lore.length > 200;
+  const loreText = stripHtml(champion.lore);
+  const isLongLore = loreText.length > 200;
 
   return (
     <div
@@ -25,13 +31,13 @@ const HeroSection: React.FC<HeroSectionProps> = ({ champion, skinNum }) => {
       }}
     >
       <div className="flex flex-col-reverse items-center gap-8 md:flex-row md:items-stretch">
-        {/* Left Column: Text Info */}
         <div className="flex flex-1 flex-col justify-end text-center md:text-left">
           <div>
             <p className="font-lol text-5xl font-bold text-hextech-gold-100 drop-shadow-lg">
               {champion.name}
             </p>
             <p className="pt-2 text-xl text-hextech-gold-100/80">{champion.title}</p>
+
             <div className="my-4 flex flex-wrap justify-center gap-2 md:justify-start">
               {champion.tags.map((tag) => (
                 <span
@@ -42,14 +48,16 @@ const HeroSection: React.FC<HeroSectionProps> = ({ champion, skinNum }) => {
                 </span>
               ))}
             </div>
+
             <div
               className={twMerge(
                 clsx('prose prose-sm max-w-2xl leading-relaxed text-hextech-gold-100/90', {
-                  'line-clamp-3': !isExpanded,
+                  'line-clamp-3': !isExpanded && isLongLore,
                 })
               )}
               dangerouslySetInnerHTML={{ __html: champion.lore }}
             />
+
             {isLongLore && (
               <button
                 onClick={() => setIsExpanded(!isExpanded)}
